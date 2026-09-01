@@ -10,7 +10,7 @@
 ############################
 
 # Name of website
-title: Tilos Az AI
+title: Árpád Tamási
 
 # Your name to show in the footer
 author: Árpád Tamási
@@ -20,6 +20,7 @@ author: Árpád Tamási
 ###############################################
 
 navbar-links:
+  Blog: "blog"
   About Me: "aboutme"
 
 ################
@@ -254,6 +255,7 @@ markdown: kramdown
 highlighter: rouge
 permalink: /:year-:month-:day-:title/
 paginate: 5
+paginate_path: "/blog/page:num/"
 
 kramdown:
   input: GFM
