@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="theme-color" content="#1f2024">
+  <title>A kiszervezés ereje · Professzori szeminárium</title>
+  <style>
+    @font-face {
+      font-family: "Sora";
+      src: url("assets/fonts/Sora-VariableFont_wght.ttf") format("truetype");
+      font-weight: 100 800;
+      font-display: swap;
+    }
+
+    :root {
+      --accent: #2f5fd8;
+      --accent-dark: #1f3f99;
+      --ink: #26242b;
+      --ink-soft: #666270;
+      --cream: #f3f2ee;
+      --white: #ffffff;
+      --mint: #1f8f6e;
+      --line: #dddbe0;
+      --panel: #f8f8f5;
+      --alert: #b23a2f;
+      --good: #1f7a53;
+
+      /* type scale — role tokens, not raw sizes */
+      --fs-label: 14px;   /* uppercase eyebrow, small metadata */
+      --fs-meta: 16px;    /* source lines, page number, small captions */
+      --fs-body: 18px;    /* card copy, body text */
+      --fs-lead: 20px;    /* subtitle, lead sentence */
+      --fs-quote: 22px;   /* quote-like, emphasized sentence */
+      --fs-accent: 25px;  /* small emphasized heading, card h3 */
+      --fs-stat-sm: 28px; /* smaller big number */
+      --fs-stat-lg: 34px; /* larger big number */
+      --fs-pivot: 40px;   /* section-break pivot line */
+      --fs-data: 60px;    /* large statistical figure */
+
+      /* display titles — per slide type, kept as a short scale */
+      --fs-display-1: 48px;  /* .slide-title */
+      --fs-display-2: 54px;  /* .close h2 */
+      --fs-display-4: 68px;  /* .section-break h2 */
+      --fs-display-5: 76px;  /* .cover h1 */
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      margin: 0;
+      background: #1f2024;
+      color: var(--ink);
+      font-family: "Sora", system-ui, sans-serif;
+    }
+
+    body {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 24px;
+      overflow: auto;
+    }
+
+    body.clean {
+      display: block;
+      width: 1280px;
+      height: 720px;
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .deck-shell { display: grid; justify-items: center; gap: 16px; }
+    body.clean .deck-shell { display: block; }
+
+    .stage { position: relative; width: 1280px; height: 720px; }
+
+    .deck {
+      position: absolute; top: 0; left: 0; width: 1280px; height: 720px;
+      overflow: hidden; background: var(--cream);
+      box-shadow: 0 24px 72px rgba(0, 0, 0, 0.38);
+      transform-origin: top left;
+    }
+    body.clean .deck { box-shadow: none; }
+
+    .slide {
+      position: absolute; inset: 0; display: none; width: 1280px; height: 720px;
+      overflow: visible; background: var(--cream); color: var(--ink);
+    }
+    .slide.active { display: block; }
+    :where(.slide) :where(h1, h2, h3, p) { margin: 0; }
+    .slide-pad { padding: 56px 72px 62px; }
+
+    .slide-title {
+      max-width: 1060px; font-size: var(--fs-display-1); font-weight: 740; letter-spacing: -0.03em;
+      line-height: 1.12; text-wrap: balance;
+    }
+
+    .slide-subtitle {
+      margin-top: 12px; max-width: 1000px; color: var(--ink-soft); font-size: var(--fs-lead);
+      font-weight: 600; letter-spacing: -0.005em; line-height: 1.4;
+    }
+
+    .slide-main { margin-top: 40px; }
+
+    .slide-conclusion {
+      margin-top: 56px; max-width: 960px; font-size: var(--fs-stat-sm); font-weight: 690;
+      letter-spacing: -0.015em; line-height: 1.3; text-wrap: balance;
+    }
+
+    .slide-note {
+      margin-top: 24px; padding-top: 16px; border-top: 2px solid var(--line);
+      font-size: var(--fs-body); font-weight: 600; color: var(--ink-soft);
+    }
+    .slide-note strong { color: var(--ink); font-weight: 700; }
+
+    .source {
+      position: absolute; right: 124px; bottom: 24px; color: var(--ink-soft);
+      font-size: var(--fs-meta); line-height: 1.4;
+    }
+    .source a { color: inherit; text-underline-offset: 3px; }
+
+    .slide-no { position: absolute; right: 72px; bottom: 24px; color: var(--ink-soft); font-size: var(--fs-meta); font-variant-numeric: tabular-nums; }
+    .accent { color: var(--accent); }
+
+    /* cover */
+    .cover .event { position: absolute; top: 62px; right: 72px; color: var(--ink-soft); font-size: var(--fs-meta); font-weight: 600; }
+    .cover-copy { position: absolute; top: 236px; left: 72px; width: 940px; }
+    .cover h1 { font-size: var(--fs-display-5); font-weight: 760; letter-spacing: -0.035em; line-height: 1.04; text-wrap: balance; }
+    .cover .subtitle { width: 840px; margin-top: 26px; color: var(--accent-dark); font-size: var(--fs-quote); font-weight: 600; letter-spacing: -0.015em; line-height: 1.38; text-wrap: balance; }
+    .cover .byline { position: absolute; bottom: 64px; left: 72px; width: 720px; color: var(--ink-soft); font-size: var(--fs-body); line-height: 1.45; }
+    .cover .byline strong { display: block; color: var(--ink); font-weight: 650; }
+    .cover-orbit { position: absolute; right: -115px; bottom: -174px; width: 510px; height: 510px; border: 54px solid #e2e8f7; border-radius: 50%; }
+    .cover-orbit::after { position: absolute; top: 63px; left: 63px; width: 276px; height: 276px; border-radius: 50%; background: var(--accent); content: ""; }
+
+    /* study-v2 (EEG) */
+    .study-v2 { display: grid; grid-template-columns: .82fr 1.18fr; gap: 72px; }
+    .study-v2.solo { grid-template-columns: 1fr; max-width: 640px; }
+    .study-v2.solo .condition-word { font-size: var(--fs-stat-lg); }
+    .study-v2 .condition-word { display: flex; justify-content: space-between; align-items: baseline; padding: 22px 0; border-top: 2px solid var(--line); font-size: var(--fs-stat-sm); font-weight: 660; }
+    .study-v2 .rank { color: var(--ink-soft); font-size: var(--fs-lead); font-weight: 600; }
+    .study-v2 .rank.low { color: var(--alert); }
+    .study-v2 .condition-word:last-child { border-bottom: 2px solid var(--line); }
+
+    /* messages bars */
+    .bar-row { display: grid; grid-template-columns: 420px 1fr 82px; gap: 24px; align-items: center; padding: 12px 0; }
+    .bar-label { font-size: var(--fs-body); line-height: 1.35; }
+    .bar-track { height: 26px; overflow: hidden; border-radius: 4px; background: #e4e3de; }
+    .bar-fill { height: 100%; border-radius: inherit; background: #83808c; }
+    .bar-row:nth-child(2) .bar-fill { background: #938f9b; }
+    .bar-row:nth-child(3) .bar-fill { background: #aba7b2; }
+    .bar-row:nth-child(4) .bar-fill { background: var(--good); }
+    .bar-row.constructive .bar-label, .bar-row.constructive .bar-value { color: var(--good); }
+    .bar-row.constructive .bar-label { font-weight: 700; }
+    .bar-value { font-size: var(--fs-stat-sm); font-weight: 730; font-variant-numeric: tabular-nums; text-align: right; }
+    .bars-foot { margin-top: 26px; display: flex; justify-content: space-between; gap: 24px; color: var(--ink-soft); font-size: var(--fs-meta); }
+
+    /* penalty grid */
+    .penalty { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; border-top: 1px solid var(--line); }
+    .penalty-cell { padding-top: 22px; }
+    .penalty-cell .penalty-value { color: var(--alert); }
+    .penalty-cell.up .penalty-value { color: var(--good); }
+    .penalty-cell.neutral .penalty-value { color: var(--accent); }
+    .penalty-value { font-size: var(--fs-data); font-weight: 740; letter-spacing: -0.025em; line-height: 1; font-variant-numeric: tabular-nums; }
+    .penalty-label { margin-top: 12px; font-size: var(--fs-body); font-weight: 640; line-height: 1.3; }
+    .penalty-when { margin-top: 6px; color: var(--accent); font-size: var(--fs-meta); font-weight: 650; line-height: 1.4; }
+
+    /* section break */
+    .section-break { background: var(--ink); color: var(--cream); }
+    .section-break .sb { position: absolute; inset: 0 72px; display: flex; flex-direction: column; justify-content: center; padding-bottom: 70px; }
+    .section-break h2 { width: 1060px; font-size: var(--fs-display-4); font-weight: 740; letter-spacing: -0.03em; line-height: 1.12; text-wrap: balance; }
+    .section-break .quiet { margin-top: 18px; color: #a7a3b0; font-size: var(--fs-quote); font-weight: 520; }
+    .section-break .pivot { margin-top: 56px; color: var(--mint); font-size: var(--fs-pivot); font-weight: 690; letter-spacing: -0.02em; }
+    .section-break .pivot-sub { margin-top: 14px; color: var(--cream); font-size: var(--fs-accent); font-weight: 560; }
+    .section-break .slide-no { color: #a7a3b0; }
+
+    /* two modes */
+    .vcae { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .vcae-col h3 { font-size: var(--fs-accent); font-weight: 720; letter-spacing: -0.015em; }
+    .vcae-col h3 span { display: block; margin-top: 4px; color: var(--ink-soft); font-size: var(--fs-meta); font-weight: 600; letter-spacing: 0; }
+    .vcae-shot { position: relative; margin-top: 14px; height: 280px; border-radius: 6px; overflow: hidden; background: #8ec9ff center / cover no-repeat; }
+    .vcae-shot.game { background-size: 112% auto; background-position: center bottom; }
+    .vcae-prompt { position: absolute; left: 14px; bottom: 14px; padding: 9px 14px; border-radius: 8px; background: rgba(255,255,255,.94); color: var(--ink); font-size: var(--fs-body); font-weight: 660; }
+    .vcae-shot.web { background-color: #fff; background-position: top center; box-shadow: 0 0 0 1px rgba(56,53,65,.18); }
+
+    /* snake */
+    .snake { position: absolute; top: 236px; left: 0; width: 1280px; height: 330px; }
+    .snake svg { position: absolute; inset: 0; overflow: visible; }
+    .sn-done { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; }
+    .sn-next { fill: none; stroke: #b9b5c0; stroke-width: 5; stroke-dasharray: 2 14; stroke-linecap: round; }
+    .sn-dot { fill: var(--accent); }
+    .sn-now { fill: var(--accent); stroke: var(--cream); stroke-width: 5; }
+    .sn-halo { fill: var(--accent); opacity: .16; transform-box: fill-box; transform-origin: center; animation: sn-pulse 2.4s cubic-bezier(.16,1,.3,1) infinite; }
+    @keyframes sn-pulse { 0% { transform: scale(.6); opacity: .35; } 100% { transform: scale(1.35); opacity: 0; } }
+    body.clean .sn-halo { animation: none; opacity: .16; }
+    .sn-todo { fill: var(--cream); stroke: #9d98a6; stroke-width: 4; }
+    .sn-straight { fill: none; stroke: #7d93d6; stroke-width: 5; stroke-dasharray: 2 12; stroke-linecap: round; }
+    .sn-goal-ring { fill: var(--cream); stroke: var(--accent); stroke-width: 6; }
+    .sn-goal-dot { fill: var(--accent); }
+    .sn-label { position: absolute; text-align: center; }
+    .sn-label span { display: block; font-size: var(--fs-accent); font-weight: 720; letter-spacing: -0.02em; }
+    .sn-label p { margin-top: 6px; font-size: var(--fs-body); font-weight: 550; line-height: 1.35; }
+    .sn-label.done span { color: var(--accent); }
+    .sn-label.now span { color: var(--accent); font-size: var(--fs-stat-sm); font-weight: 680; }
+    .sn-label.todo span { color: var(--ink-soft); font-size: var(--fs-quote); }
+    .sn-label.todo p { color: var(--ink-soft); }
+    .sn-label.goal span { color: var(--accent); }
+    .sn-label.goal p { font-weight: 620; }
+    .sn-here { position: absolute; top: -40px; left: 1024px; padding: 8px 13px 9px; border-radius: 4px; background: var(--accent); color: var(--white); font-size: var(--fs-body); font-weight: 680; line-height: 1; white-space: nowrap; box-shadow: 0 3px 8px rgba(38,36,43,.22); }
+
+    /* time use */
+    .tu-legend { display: flex; align-items: center; gap: 10px; margin-top: 26px; color: var(--ink-soft); font-size: var(--fs-body); font-weight: 600; }
+    .tu-legend .k { display: inline-block; width: 18px; height: 18px; border-radius: 3px; }
+    .tu-legend .k.mine { background: #c9c6ce; }
+    .tu-legend .k.ai { margin-left: 18px; background: var(--accent); }
+    .tu { margin-top: 18px; }
+    .tu-row { display: grid; grid-template-columns: 360px 1fr 92px; gap: 24px; align-items: center; padding: 9px 0; }
+    .tu-label { font-size: var(--fs-lead); font-weight: 570; }
+    .tu-track { position: relative; height: 28px; }
+    .tu-track span { position: absolute; top: 0; left: 0; height: 100%; border-radius: 4px; }
+    .tu-mine { background: #c9c6ce; }
+    .tu-ai { background: var(--accent); }
+    .tu-read { background: #9fb3e8; }
+    .tu-mine, .tu-ai, .tu-read { transition: width .9s cubic-bezier(.16,1,.3,1), left .9s cubic-bezier(.16,1,.3,1); }
+    .tu-value { font-size: var(--fs-stat-sm); font-weight: 720; text-align: right; font-variant-numeric: tabular-nums; transition: opacity .3s ease; }
+    .tu-legend.step-b .k.read { margin-left: 18px; background: #9fb3e8; }
+
+    /* magic move: idő → szó nézet */
+    .magic-slide .slide-title, .magic-slide .slide-subtitle { transition: opacity .35s ease; }
+
+
+    /* lesson dark */
+    .lesson-dark .ld { color: var(--cream); font-size: var(--fs-display-2); font-weight: 740; letter-spacing: -0.03em; line-height: 1.16; text-wrap: balance; }
+    .lesson-dark .ld + .ld { margin-top: 18px; }
+    .lesson-dark .ld.key { margin-top: 52px; color: var(--mint); font-size: var(--fs-display-4); }
+    .lesson-dark + .slide-note { position: absolute; left: 72px; bottom: 44px; margin: 0; padding: 0; border: 0; color: #a7a3b0; }
+
+    /* research slide */
+    .research-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+    .research-col h3 { font-size: var(--fs-quote); font-weight: 720; letter-spacing: -0.01em; color: var(--ink); }
+    .research-col ul { margin: 14px 0 0; padding: 0 0 0 20px; }
+    .research-col li { font-size: var(--fs-body); font-weight: 520; line-height: 1.5; margin-bottom: 8px; }
+    .research-sample { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+    .research-sample li { padding-top: 12px; border-top: 1px solid var(--line); font-size: var(--fs-body); font-weight: 560; line-height: 1.4; color: var(--ink); }
+    .prisma .prisma-n { margin-right: 6px; font-size: var(--fs-accent); font-weight: 740; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+    .research-sample .sample-scale { display: block; margin-top: 4px; color: var(--ink-soft); font-size: var(--fs-meta); font-weight: 520; }
+
+    /* three tracks summary */
+    .tracks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; border-top: 1px solid var(--line); }
+    .track-col { padding-top: 22px; }
+    .track-col .track-kind { color: var(--accent); font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
+    .track-col h3 { margin-top: 10px; font-size: var(--fs-quote); font-weight: 720; letter-spacing: -0.01em; line-height: 1.3; }
+    .track-col p { margin-top: 12px; font-size: var(--fs-body); font-weight: 520; line-height: 1.5; color: var(--ink-soft); }
+    .track-col .track-status { margin-top: 16px; font-size: var(--fs-label); font-weight: 650; color: var(--ink); }
+    .track-col.weaker .track-kind { color: var(--ink-soft); }
+    .track-col.weaker h3 { font-size: var(--fs-lead); color: var(--ink-soft); }
+    .track-col .track-tests { margin-top: 8px; color: var(--accent); font-size: var(--fs-label); font-weight: 650; }
+
+    /* observation / open-question statement slides */
+
+    /* Phaidrosz box */
+    .phaidrosz-box { max-width: 1000px; padding-left: 32px; border-left: 2px solid var(--line); }
+    .phaidrosz-text { font-size: var(--fs-quote); font-weight: 540; line-height: 1.5; color: var(--ink); }
+    .phaidrosz-src { margin-top: 14px; color: var(--ink-soft); font-size: var(--fs-meta); font-weight: 600; }
+
+    /* four explanations grid */
+    .explain-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 28px; }
+    .explain-cell { padding-top: 18px; border-top: 1px solid var(--line); }
+    .explain-cell .explain-kind { color: var(--accent); font-size: var(--fs-label); font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
+    .explain-cell h3 { margin-top: 8px; font-size: var(--fs-quote); font-weight: 720; letter-spacing: -0.01em; line-height: 1.3; }
+    .explain-cell p { margin-top: 8px; font-size: var(--fs-body); font-weight: 520; line-height: 1.45; color: var(--ink-soft); }
+
+    /* quote */
+    .big-quote { position: absolute; top: 150px; left: 72px; width: 1060px; font-size: var(--fs-display-2); font-weight: 700; letter-spacing: -0.03em; line-height: 1.24; text-wrap: balance; }
+    .big-quote .q-mark { text-decoration: underline; text-decoration-color: var(--good); text-decoration-thickness: 6px; text-underline-offset: 8px; text-decoration-skip-ink: none; }
+    .quote-by { position: absolute; left: 72px; top: 500px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--accent); font-size: var(--fs-quote); font-weight: 700; }
+    .quote-by span { display: block; margin-top: 6px; color: var(--ink-soft); font-size: var(--fs-body); font-weight: 550; font-style: italic; }
+
+    /* close */
+    .close { background: var(--accent); color: var(--white); }
+    .close h2 { position: absolute; top: 176px; left: 72px; width: 880px; font-size: var(--fs-display-2); font-weight: 740; letter-spacing: -0.03em; line-height: 1.2; text-wrap: balance; }
+    .close h2.close-solo { position: absolute; inset: 0; top: 0; left: 0; width: 1280px; height: 720px; display: flex; align-items: center; justify-content: center; font-size: var(--fs-display-5); text-align: center; }
+
+    .controls { display: flex; align-items: center; gap: 12px; color: #dedce5; font-size: 14px; }
+    #notes-btn { padding: 0 12px; font-size: 13px; font-weight: 650; }
+    .controls button { display: inline-grid; place-items: center; min-width: 42px; height: 38px; border: 1px solid #5f5b69; border-radius: 12px; background: #34313d; color: var(--white); font: inherit; cursor: pointer; }
+    .controls button:hover { background: #403c4a; }
+    .controls button:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+    .controls button:disabled { opacity: .35; cursor: default; }
+    .controls .counter { min-width: 62px; text-align: center; font-variant-numeric: tabular-nums; }
+    .controls .hint { margin-left: 8px; color: #aaa6b2; }
+
+    @media print {
+      @page { size: 13.333333in 7.5in; margin: 0; }
+      html, body, body.clean { display: block !important; width: 1280px !important; height: auto !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: transparent !important; }
+      .deck-shell, .stage, .deck { position: static !important; display: block !important; width: 1280px !important; height: auto !important; overflow: visible !important; box-shadow: none !important; transform: none !important; }
+      .slide, .slide.active { position: relative; inset: auto; display: block !important; width: 1280px; height: 720px; overflow: hidden; contain: strict; break-inside: avoid; break-after: page; page-break-after: always; }
+      .slide:last-child { break-after: auto; page-break-after: auto; }
+      .controls { display: none !important; }
+    }
+
+    body.clean .controls { display: none; }
+    @media (max-width: 720px) { .controls .hint { display: none; } }
+    body.fit { padding: 0; }
+    body.fit .deck-shell { gap: 12px; }
+    body.fit .deck { box-shadow: none; }
+    body.bare { background: #000; }
+    body.bare .deck-shell { gap: 0; }
+    body.bare .controls { display: none; }
+    .stage { touch-action: pan-y; }
+    ::selection { background: var(--accent); color: var(--white); }
+
+    .step { opacity: 0; transform: translateY(14px); transition: opacity .45s cubic-bezier(.16,1,.3,1), transform .45s cubic-bezier(.16,1,.3,1); }
+    .step.shown, body.clean .step { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <main class="deck-shell" aria-label="A kiszervezés ereje — prezentáció">
+    <div class="stage">
+      <div class="deck">
+
+        <section class="slide cover active" aria-label="Cím">
+          <p class="event">Professzori szeminárium · 2026. október 12.</p>
+          <div class="cover-copy">
+            <h1>A kiszervezés ereje.</h1>
+            <p class="subtitle">A mesterséges intelligencia megjelenésével a diákok kiszervezhetik a kognitív tevékenységüket. Mi következik ebből?</p>
+          </div>
+          <p class="byline"><strong>Tamási Árpád</strong>doktorandusz, ELTE TáTK Szociológia Doktori Iskola<br>témavezető: Dr. Németh Renáta</p>
+          <div class="cover-orbit" aria-hidden="true"></div>
+        </section>
+
+        <section class="slide slide-pad observation-slide" aria-label="Mit kezdünk a kiszervezéssel? — Platón Phaidrosza">
+          <h2 class="slide-title">Mit kezdünk a kiszervezéssel?</h2>
+          <p class="slide-subtitle">Egy kétezer-négyszáz éves vita</p>
+          <div class="phaidrosz-box slide-main">
+            <p class="phaidrosz-text">Platón <em>Phaidroszában</em> Thamusz király bírálja Theuth isten ajándékát, az írást: aki külső jelre támaszkodik, abbahagyja a saját emlékezete gyakorlását, és csak a bölcsesség látszatára tesz szert.</p>
+            <p class="phaidrosz-src">Platón, <em>Phaidrosz</em>, 274c–275b</p>
+          </div>
+          <span class="slide-no">02</span>
+        </section>
+
+        <section class="slide slide-pad eeg-slide" aria-label="EEG íráskor">
+          <h2 class="slide-title">Esszéírás, EEG-vel mérve.</h2>
+          <p class="slide-subtitle">MIT Media Lab, 2025 · 54 egyetemista</p>
+          <div class="study-v2 solo slide-main">
+            <div class="conditions" aria-label="Három munkamód">
+              <div class="condition-word">Csak az elme<span class="rank">legerősebb kapcsolódás</span></div>
+              <div class="condition-word">Keresőmotor<span class="rank">köztes</span></div>
+              <div class="condition-word">LLM<span class="rank low">leggyengébb</span></div>
+            </div>
+          </div>
+          <p class="source">Kosmyna és mtsai, <em>Your Brain on ChatGPT</em>, arXiv preprint, 2025 · korlát: szűk esszéfeladat, kis minta, preprint</p>
+          <span class="slide-no">03</span>
+        </section>
+
+        <section class="slide slide-pad messages" aria-label="Negyvenezer hallgatói üzenet">
+          <h2 class="slide-title">Negyvenezer hallgatói üzenet.</h2>
+          <p class="slide-subtitle">AI-tutorral folytatott interakciók mintázata</p>
+          <div class="bars-wrap slide-main">
+            <div class="bar-row"><p class="bar-label">Magyarázatot kér, aztán lezárja a beszélgetést</p><div class="bar-track"><div class="bar-fill" style="width: 42%"></div></div><span class="bar-value">42%</span></div>
+            <div class="bar-row"><p class="bar-label">Átadja a feladatot vagy a teljes munkát</p><div class="bar-track"><div class="bar-fill" style="width: 28%"></div></div><span class="bar-value">28%</span></div>
+            <div class="bar-row"><p class="bar-label">Több forduló, de az összegzés az AI-nál marad</p><div class="bar-track"><div class="bar-fill" style="width: 20%"></div></div><span class="bar-value">≈20%</span></div>
+            <div class="bar-row constructive"><p class="bar-label">A hallgató saját gondolata bekerül, és próbára kerül</p><div class="bar-track"><div class="bar-fill" style="width: 4%"></div></div><span class="bar-value">≈4%</span></div>
+          </div>
+          <div class="bars-foot"><span>GoSchool.ai AI-tutor korpusz · előzetes, leíró kategorizálás</span><span>Tamási, <em>The Power of Outsourcing</em>, The European Sociologist 55, 2026</span></div>
+          <span class="slide-no">04</span>
+        </section>
+
+        <section class="slide slide-pad penalty-slide" aria-label="Jobb házi, gyengébb zárthelyi">
+          <h2 class="slide-title">Egy kínai vizsgálat, amely az időt is mérte.</h2>
+          <p class="slide-subtitle">26 811 középiskolás, 30 hónap</p>
+          <div class="penalty slide-main">
+            <div class="penalty-cell up"><p class="penalty-value">+18%</p><p class="penalty-label">Házi feladat pontszáma</p></div>
+            <div class="penalty-cell neutral"><p class="penalty-value">−30%</p><p class="penalty-label">A házira fordított idő</p></div>
+            <div class="penalty-cell"><p class="penalty-value">−20%</p><p class="penalty-label">Havi zárthelyi</p></div>
+            <div class="penalty-cell"><p class="penalty-value">−24%</p><p class="penalty-label">Felvételi vizsga</p></div>
+          </div>
+          <p class="slide-conclusion step" data-order="1">A házira kevesebb idő jutott, és <span class="accent">a zárthelyin gyengébb lett az eredmény.</span></p>
+          <p class="source">Strömberg, Lei, Wu, <em>The Generative AI Learning Penalty</em>, CEPR DP21577, 2026 · korlát: középiskolások, egy megye, munkaanyag</p>
+          <span class="slide-no">05</span>
+        </section>
+
+        <section class="slide slide-pad explain-slide" aria-label="Négy lehetséges magyarázat">
+          <h2 class="slide-title">Miért kezeljük problémaként?</h2>
+          <p class="slide-subtitle">Lehetséges magyarázatok</p>
+          <div class="explain-grid slide-main">
+            <div class="explain-cell">
+              <p class="explain-kind">Tehetetlenség</p>
+              <h3>A kiszervezhetőség most vált valóra</h3>
+              <p>A kutatás még csak diagnosztizál, a konstruktív irány később jön.</p>
+            </div>
+            <div class="explain-cell">
+              <p class="explain-kind">Mérőeszköz-válság</p>
+              <h3>A kutató azt méri, amit tud</h3>
+              <p>Az AI elválasztotta a látható eredményt a tanulástól, ezért a segítség nélküli felidézést mérik.</p>
+            </div>
+            <div class="explain-cell">
+              <p class="explain-kind">Nincs eszköz a tanárnak</p>
+              <h3>Ugyanez a válság a gyakorlatban</h3>
+              <p>A tanár a kész eredményt látja, a születése rejtve marad előtte.</p>
+            </div>
+            <div class="explain-cell">
+              <p class="explain-kind">Intézményi önfenntartás</p>
+              <h3>A keret megőrzi a szerepeket</h3>
+              <p>A „kiszervezés mint probléma” mozdítja el legkevésbé az értékelést és a tanár–diák szerepeket.</p>
+            </div>
+          </div>
+          <span class="slide-no">06</span>
+        </section>
+
+        <section class="slide section-break" aria-label="A mai feladatok az eredményt jutalmazzák">
+          <div class="sb">
+            <h2>A mai feladatok az eredményt jutalmazzák.</h2>
+            <p class="quiet">mert tömegesen azt a legolcsóbb megmérni</p>
+            <p class="pivot step" data-order="1">Mi lenne, ha a folyamatot jutalmaznánk?</p>
+            <p class="pivot-sub step" data-order="2">Ellenőrizetlen feltevés: segít-e egyáltalán?</p>
+          </div>
+          <span class="slide-no">07</span>
+        </section>
+
+        <section class="slide slide-pad modes" aria-label="Két program, mindkettő AI-jal épült">
+          <h2 class="slide-title">Padló és mennyezet.</h2>
+          <p class="slide-subtitle">Két mód, ahogy ma AI-jal szoftvert építünk</p>
+          <div class="vcae slide-main">
+            <div class="vcae-col">
+              <h3>Vibe coding<span>egy mondatból játszható 3D-s világ</span></h3>
+              <div class="vcae-shot game" style="background-image: url('assets/img/vibe-minecraft.png')"><p class="vcae-prompt">„Csinálj nekem egy Minecraftot.”</p></div>
+            </div>
+            <div class="vcae-col ae">
+              <h3>Agentic engineering<span>saját fejlesztésű Moodle-bővítmény, amire oktatók támaszkodnak</span></h3>
+              <div class="vcae-shot web" style="background-image: url('assets/img/nitro-web-en.png')"></div>
+            </div>
+          </div>
+          <p class="source">Karpathy, <em>Sequoia Ascent 2026</em></p>
+          <span class="slide-no">08</span>
+        </section>
+
+        <section class="slide slide-pad" aria-label="44 projekt, heti ritmusban">
+          <h2 class="slide-title">44 projekt, heti ritmusban.</h2>
+          <p class="slide-subtitle">Két kurzus · 28 hallgató és 16 oktató · kurzustervezési kísérlet</p>
+          <div class="snake">
+            <svg viewBox="0 0 1280 330" width="1280" height="330" aria-hidden="true">
+              <path class="sn-done" d="M110 30 H990"/>
+              <path class="sn-next" d="M990 30 H1090 A60 60 0 0 1 1090 150 H190 A60 60 0 0 0 190 270 H990"/>
+              <circle class="sn-dot" cx="150" cy="30" r="13"/>
+              <circle class="sn-dot" cx="430" cy="30" r="13"/>
+              <circle class="sn-dot" cx="710" cy="30" r="13"/>
+              <circle class="sn-halo" cx="990" cy="30" r="34"/>
+              <circle class="sn-now" cx="990" cy="30" r="21"/>
+              <path class="sn-straight" d="M430 270 H990"/>
+              <circle class="sn-todo" cx="430" cy="270" r="12"/>
+              <circle class="sn-goal-ring" cx="990" cy="270" r="20"/>
+              <circle class="sn-goal-dot" cx="990" cy="270" r="8"/>
+              <circle class="sn-todo small" cx="990" cy="150" r="9"/>
+              <circle class="sn-todo small" cx="850" cy="150" r="9"/>
+              <circle class="sn-todo small" cx="710" cy="150" r="9"/>
+              <circle class="sn-todo small" cx="570" cy="150" r="9"/>
+              <circle class="sn-todo small" cx="430" cy="150" r="9"/>
+              <circle class="sn-todo small" cx="290" cy="150" r="9"/>
+            </svg>
+            <div class="sn-label done" style="left: 20px; top: 54px; width: 260px"><span>Projekt</span><p>Jól definiált-e?</p></div>
+            <div class="sn-label done" style="left: 300px; top: 54px; width: 260px"><span>Specifikáció</span><p>Alakította, vagy csak bólogatott?</p></div>
+            <div class="sn-label done" style="left: 580px; top: 54px; width: 260px"><span>Terv</span><p>Változtatott-e az AI javaslatára?</p></div>
+            <div class="sn-label now" style="left: 840px; top: 58px; width: 300px"><span>Spike</span><p>Tesztelte-e a kockázatos pontokat?</p></div>
+            <span class="sn-here">Itt tartunk</span>
+            <div class="sn-label todo" style="left: 510px; top: 172px; width: 400px"><span>Iteráció</span><p>Több hét, körről körre</p></div>
+            <div class="sn-label todo" style="left: 200px; top: 294px; width: 460px"><span>Reflexió</span><p>A hajrá: mit csináltak ők, mit az AI</p></div>
+            <div class="sn-label goal" style="left: 830px; top: 298px; width: 320px"><span>Bemutatás, publikálás</span><p>A cél: a végén, nyilvánosan</p></div>
+          </div>
+          <span class="slide-no">09</span>
+        </section>
+
+        <section class="slide slide-pad magic-slide" aria-label="Min dolgoztunk, és a kiszervezés ereje">
+          <h2 class="slide-title magic-title" data-a="Hová ment a munkaidőm." data-b="Minden saját szavamra 106 gépi szó.">Hová ment a munkaidőm.</h2>
+          <p class="slide-subtitle magic-context" data-a="A két kurzusom, 2026 szeptember · 813 kérés, kb. 100 munkaóra" data-b="A két kurzusom, 2026 szeptember · kb. 30 óra AI-munka">A két kurzusom, 2026 szeptember · 813 kérés, kb. 100 munkaóra</p>
+          <div class="tu-legend step-a"><span class="k mine"></span>a saját időm <span class="k ai"></span>ebből az AI dolgozott</div>
+          <div class="tu-legend step-b" style="display:none"><span class="k mine"></span>saját szó <span class="k read"></span>AI olvasta <span class="k ai"></span>AI írta</div>
+          <div class="tu magic-bars slide-main">
+            <div class="tu-row" data-label-a="Tananyag és feladatok" data-label-b="Tananyag és feladatok" data-pct="32" data-ai-time="43.4" data-own-words="3617" data-read-words="169531" data-write-words="180724" data-mult="97">
+              <p class="tu-label">Tananyag és feladatok</p><div class="tu-track"><span class="tu-mine"></span><span class="tu-ai"></span><span class="tu-read" style="display:none"></span></div><span class="tu-value">32%</span>
+            </div>
+            <div class="tu-row" data-label-a="Kommunikáció" data-label-b="Kommunikáció" data-pct="19" data-ai-time="19.2" data-own-words="1223" data-read-words="80071" data-write-words="82989" data-mult="133">
+              <p class="tu-label">Kommunikáció</p><div class="tu-track"><span class="tu-mine"></span><span class="tu-ai"></span><span class="tu-read" style="display:none"></span></div><span class="tu-value">19%</span>
+            </div>
+            <div class="tu-row" data-label-a="Beadások átnézése" data-label-b="Beadások átnézése" data-pct="14" data-ai-time="16.5" data-own-words="819" data-read-words="53342" data-write-words="39338" data-mult="113">
+              <p class="tu-label">Beadások átnézése</p><div class="tu-track"><span class="tu-mine"></span><span class="tu-ai"></span><span class="tu-read" style="display:none"></span></div><span class="tu-value">14%</span>
+            </div>
+            <div class="tu-row" data-label-a="Értékelés, visszajelzés" data-label-b="Értékelés, visszajelzés" data-pct="12" data-ai-time="26.1" data-own-words="1176" data-read-words="65930" data-write-words="83682" data-mult="127">
+              <p class="tu-label">Értékelés, visszajelzés</p><div class="tu-track"><span class="tu-mine"></span><span class="tu-ai"></span><span class="tu-read" style="display:none"></span></div><span class="tu-value">12%</span>
+            </div>
+            <div class="tu-row" data-label-a="Hallgatói munka elemzése" data-label-b="Hallgatói munka elemzése" data-pct="10" data-ai-time="23.7" data-own-words="1094" data-read-words="48548" data-write-words="57288" data-mult="97">
+              <p class="tu-label">Hallgatói munka elemzése</p><div class="tu-track"><span class="tu-mine"></span><span class="tu-ai"></span><span class="tu-read" style="display:none"></span></div><span class="tu-value">10%</span>
+            </div>
+            <div class="tu-row" data-label-a="Egyéb" data-label-b="Egyéb" data-pct="9" data-ai-time="31.9" data-own-words="1359" data-read-words="58497" data-write-words="47182" data-mult="78">
+              <p class="tu-label">Egyéb</p><div class="tu-track"><span class="tu-mine"></span><span class="tu-ai"></span><span class="tu-read" style="display:none"></span></div><span class="tu-value">9%</span>
+            </div>
+            <div class="tu-row" data-label-a="Eszközök, szkriptek" data-label-b="Eszközök, szkriptek" data-pct="4" data-ai-time="57.2" data-own-words="387" data-read-words="31009" data-write-words="24114" data-mult="142">
+              <p class="tu-label">Eszközök, szkriptek</p><div class="tu-track"><span class="tu-mine"></span><span class="tu-ai"></span><span class="tu-read" style="display:none"></span></div><span class="tu-value">4%</span>
+            </div>
+          </div>
+          <span class="slide-no">10</span>
+        </section>
+
+        <section class="slide section-break" aria-label="A tanulság a kurzusaimból">
+          <div class="sb lesson-dark">
+            <p class="ld">Elfogadom, hogy kiszervezik a kódolást, cserébe valódi szoftvert építenek, amit meg tudnak mutatni.</p>
+            <p class="ld key">Kié marad a kontroll afölött, amit létrehozunk?</p>
+          </div>
+          <p class="slide-note">Munkahipotézis · a kurzusok még futnak</p>
+          <span class="slide-no">11</span>
+        </section>
+
+        <section class="slide slide-pad research-slide" aria-label="A kísérlet: a kérdőíves kutatás">
+          <h2 class="slide-title">A tanári elvárás.</h2>
+          <p class="slide-subtitle">Preregisztrált kérdőív tanároknak és oktatóknak</p>
+          <div class="research-grid slide-main">
+            <div class="research-col">
+              <h3>A kutatási kérdés</h3>
+              <ul>
+                <li>Mit vár a tanár az AI-tól?</li>
+                <li>Látja-e a beadott munkán a diák saját gondolkodását?</li>
+                <li>Az elvárást közvetett, egymást ellenőrző tételekkel mérjük, nyíltan nem nevezzük meg.</li>
+              </ul>
+            </div>
+            <div class="research-col">
+              <h3>Példakérdések</h3>
+              <ul class="research-sample">
+                <li>Mit várna az AI-tól javításkor?<span class="sample-scale">gyorsabb javítás ↔ megmutatja, hol akadnak el a hallgatók</span></li>
+                <li>Mit várna az AI-tól, amikor a hallgatók kérdeznek?<span class="sample-scale">lássam, mit kérdeznek ↔ ne nekem kelljen válaszolnom</span></li>
+                <li>Ha egy hallgató a teljes beadandót AI-jal készíti el, kinek kellene ezen változtatnia?<span class="sample-scale">a hallgatónak / nekem / az intézménynek / senkinek</span></li>
+              </ul>
+            </div>
+          </div>
+          <span class="slide-no">12</span>
+        </section>
+
+        <section class="slide slide-pad research-slide" aria-label="A szisztematikus review">
+          <h2 class="slide-title">A kutatás iránya.</h2>
+          <p class="slide-subtitle">Szisztematikus review a 2021–2026-os szakirodalomról</p>
+          <div class="research-grid slide-main">
+            <div class="research-col">
+              <h3>A kutatási kérdés</h3>
+              <ul>
+                <li>Diagnózist keres a kutatás, vagy már a tanulás újratervezését?</li>
+                <li>Nő-e az újratervező tanulmányok aránya 2021 és 2026 között?</li>
+                <li>Mit mérnek a hatásvizsgálatok, a segítség nélküli felidézést vagy a folyamatot?</li>
+              </ul>
+            </div>
+            <div class="research-col">
+              <h3>Ahol most tart</h3>
+              <ul class="research-sample prisma">
+                <li><span class="prisma-n">13 733</span> találat<span class="sample-scale">Scopus, angol nyelvű cikkek és review-k, PRISMA 2020</span></li>
+                <li><span class="prisma-n">13 720</span> egyedi rekord<span class="sample-scale">duplikátumszűrés után</span></li>
+                <li><span class="prisma-n">500</span> rekord próbaszűrése<span class="sample-scale">AI-asszisztált, cím és absztrakt alapján: 422 bevonva, 28 bizonytalan, 50 kizárva</span></li>
+                <li>Következik<span class="sample-scale">emberi validáció véletlen mintán, teljes szöveg, kódolás</span></li>
+              </ul>
+            </div>
+          </div>
+          <span class="slide-no">13</span>
+        </section>
+
+        <section class="slide slide-pad tracks-slide" aria-label="A három vizsgálat részletesen">
+          <h2 class="slide-title">A három vizsgálat.</h2>
+          <p class="slide-subtitle">Egyik sem dönt önmagában, együtt szorítják be a választ</p>
+          <div class="tracks-grid slide-main">
+            <div class="track-col weaker">
+              <p class="track-kind">Esettanulmány</p>
+              <h3>A két kurzusom</h3>
+              <p>Ha a folyamatot jutalmazzuk, a kiszervezéssel felszabadult kapacitást tudjuk többre használni?</p>
+              <p>Kvalitatív vizsgálat: jár-e ez magasabb teljesítménnyel és nagyobb motivációval?</p>
+              <p class="track-status">Két kurzus fut, a vizsgálat tervezés alatt</p>
+              <p class="track-tests">Teszteli: a saját javaslat feltevését</p>
+            </div>
+            <div class="track-col">
+              <p class="track-kind">Kérdőív</p>
+              <h3>Mit tapasztal a tanár</h3>
+              <p>Látja-e a tanár a diák saját gondolkodását?</p>
+              <p class="track-status">45 válasz, gyűjtés 2027 júniusáig</p>
+              <p class="track-tests">Teszteli: nincs eszköz a tanárnak</p>
+            </div>
+            <div class="track-col">
+              <p class="track-kind">Szisztematikus review</p>
+              <h3>Mit mér a szakirodalom</h3>
+              <p>Diagnózist keres a kutatás, vagy már a tanulás újratervezését?</p>
+              <p class="track-status">PRISMA, Scopus, 2021–2026 · 13 720 rekord, próbaszűrés 500-on</p>
+              <p class="track-tests">Teszteli: tehetetlenség, mérőeszköz-válság</p>
+            </div>
+          </div>
+          <span class="slide-no">14</span>
+        </section>
+
+        <section class="slide quote-slide" aria-label="Whitehead a kiszervezésről">
+          <p class="big-quote">„A civilizáció azzal halad előre, hogy egyre több fontos műveletet tudunk elvégezni <span class="q-mark">anélkül, hogy gondolkodnánk rajtuk</span>.”</p>
+          <p class="quote-by">Alfred North Whitehead<span>An Introduction to Mathematics, 1911</span></p>
+          <span class="slide-no">15</span>
+        </section>
+
+        <section class="slide close" aria-label="Kérdések">
+          <h2 class="close-solo">Kérdések</h2>
+        </section>
+
+        <section class="slide slide-pad backup" aria-label="Tartalék: a kérdőív módszere">
+          <h2 class="slide-title">Tartalék: a kérdőív módszere.</h2>
+          <p class="slide-subtitle">Tamási Árpád, Németh Renáta · ELTE TáTK Szociológia Doktori Iskola</p>
+          <div class="research-grid slide-main">
+            <div class="research-col">
+              <h3>Tervezés</h3>
+              <ul>
+                <li>OSF-preregisztráció az első válasz előtt (osf.io/7g4fb, 2026-10-07)</li>
+                <li>KEAB-kérelem beadva</li>
+                <li>Három konfirmatív hipotézis, Holm-korrekció</li>
+              </ul>
+            </div>
+            <div class="research-col">
+              <h3>Minta</h3>
+              <ul>
+                <li>Online, név nélkül, kb. 5 perc, felső- és közoktatási ág</li>
+                <li>Kényelmi minta, toborzás hálózatokon át</li>
+                <li>Most 45 válasz, gyűjtés 2027. június 30-ig</li>
+              </ul>
+            </div>
+          </div>
+          <p class="slide-note">Érdekütközés: a szerző a GoSchool.ai alapítója. A kérdőívben nincs termékkérdés, a cég nem fér hozzá az adatokhoz.</p>
+        </section>
+
+        <section class="slide slide-pad backup" aria-label="Tartalék: ami nyitott marad">
+          <h2 class="slide-title">Tartalék: ami nyitott marad.</h2>
+          <div class="research-grid slide-main">
+            <div class="research-col">
+              <h3>Az intézményi magyarázat</h3>
+              <ul>
+                <li>A negyedik magyarázatot egyik vizsgálat sem teszteli közvetlenül.</li>
+                <li>Bizonyítványt nem adó, alacsony tétű környezetek összevetése döntené el.</li>
+              </ul>
+            </div>
+            <div class="research-col">
+              <h3>Az esettanulmány korlátai</h3>
+              <ul>
+                <li>Tervező, oktató és értékelő ugyanaz a személy.</li>
+                <li>Alacsony tét és folyamatpedagógia itt nem választható szét.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="controls" aria-label="Vezérlők">
+      <button id="prev" type="button" aria-label="Előző dia">←</button>
+      <span class="counter" id="counter">1 / 18</span>
+      <button id="next" type="button" aria-label="Következő dia">→</button>
+      <button id="fullscreen" type="button" aria-label="Teljes képernyő"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4"/></svg></button>
+      <button id="notes-btn" type="button" aria-label="Előadói jegyzetek">jegyzetek</button>
+      <span class="hint">← → · space · F teljes képernyő · N jegyzetek</span>
+    </nav>
+  </main>
+
+  <script src="notes.js"></script>
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const params = new URLSearchParams(location.search);
+    const requested = Number.parseInt(params.get('slide') || '1', 10);
+    const clean = params.get('clean') === '1';
+    let current = Math.min(Math.max(requested - 1, 0), slides.length - 1);
+
+    if (clean) document.body.classList.add('clean');
+
+    function resizeDeck() {
+      if (clean) return;
+      const stage = document.querySelector('.stage');
+      const deck = document.querySelector('.deck');
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const full = Boolean(document.fullscreenElement);
+      const small = w < 900 || h < 560;
+      const bare = full || (small && w > h);
+      document.body.classList.toggle('fit', full || small);
+      document.body.classList.toggle('bare', bare);
+      const pad = full || small ? 0 : 48;
+      const controlsHeight = bare ? 0 : 62;
+      const scale = Math.min((w - pad) / 1280, (h - controlsHeight - pad) / 720);
+      deck.style.transform = `scale(${scale})`;
+      stage.style.width = `${1280 * scale}px`;
+      stage.style.height = `${720 * scale}px`;
+    }
+
+    const steps = (i) => [...slides[i].querySelectorAll('.step')]
+      .map((el, n) => [Number(el.dataset.order ?? n), el])
+      .sort((a, b) => a[0] - b[0])
+      .map(([, el]) => el);
+
+    function magicStepCount(slide) {
+      return slide.classList.contains('magic-slide') ? 1 : 0;
+    }
+
+    function applyMagicMove(slide, toWords) {
+      slide.querySelector('.magic-title').textContent = slide.querySelector('.magic-title').dataset[toWords ? 'b' : 'a'];
+      slide.querySelector('.magic-context').textContent = slide.querySelector('.magic-context').dataset[toWords ? 'b' : 'a'];
+      slide.querySelector('.tu-legend.step-a').style.display = toWords ? 'none' : 'flex';
+      slide.querySelector('.tu-legend.step-b').style.display = toWords ? 'flex' : 'none';
+      const maxPct = Math.max(...[...slide.querySelectorAll('.magic-bars .tu-row')].map((r) => Number(r.dataset.pct)));
+      slide.querySelectorAll('.magic-bars .tu-row').forEach((row) => {
+        const mine = row.querySelector('.tu-mine');
+        const ai = row.querySelector('.tu-ai');
+        const read = row.querySelector('.tu-read');
+        const label = row.querySelector('.tu-label');
+        const value = row.querySelector('.tu-value');
+        label.textContent = toWords ? row.dataset.labelB : row.dataset.labelA;
+        if (!toWords) {
+          value.textContent = `${row.dataset.pct}%`;
+          mine.style.display = 'block'; ai.style.display = 'block'; read.style.display = 'none';
+          const share = Number(row.dataset.pct) / maxPct * 100;
+          mine.style.left = '0%';
+          ai.style.left = '0%';
+          mine.style.width = `${share}%`;
+          ai.style.width = `${share * Number(row.dataset.aiTime) / 100}%`;
+        } else {
+          const own = Number(row.dataset.ownWords), rd = Number(row.dataset.readWords), wr = Number(row.dataset.writeWords);
+          const total = own + rd + wr;
+          value.textContent = `×${row.dataset.mult}`;
+          read.style.display = 'block';
+          mine.style.width = `${Math.max(1, (own / total) * 100)}%`;
+          read.style.left = `${(own / total) * 100}%`;
+          read.style.width = `${(rd / total) * 100}%`;
+          ai.style.left = `${((own + rd) / total) * 100}%`;
+          ai.style.width = `${(wr / total) * 100}%`;
+        }
+      });
+    }
+
+    let revealed = 0;
+
+    function setRevealed(n) {
+      const list = steps(current);
+      const slide = slides[current];
+      const max = Math.max(list.length, magicStepCount(slide));
+      revealed = Math.min(Math.max(n, 0), max);
+      list.forEach((el, i) => el.classList.toggle('shown', i < revealed));
+      if (slide && slide.classList.contains('magic-slide')) applyMagicMove(slide, revealed >= 1);
+      updatePresenter();
+    }
+
+    function show(index, allSteps = false) {
+      current = Math.min(Math.max(index, 0), slides.length - 1);
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+      setRevealed(allSteps ? stepCount(current) : 0);
+      document.getElementById('counter').textContent = `${current + 1} / ${slides.length}`;
+      document.getElementById('prev').disabled = current === 0;
+      document.getElementById('next').disabled = current === slides.length - 1;
+      const url = new URL(location.href);
+      url.searchParams.set('slide', String(current + 1));
+      history.replaceState(null, '', url);
+      updatePresenter();
+    }
+
+    function stepCount(i) { return Math.max(steps(i).length, magicStepCount(slides[i])); }
+
+    function next() {
+      if (revealed < stepCount(current)) setRevealed(revealed + 1);
+      else show(current + 1);
+    }
+
+    function prev() {
+      if (revealed > 0) setRevealed(revealed - 1);
+      else if (current > 0) show(current - 1, true);
+    }
+
+    let presenter = null;
+    let startedAt = null;
+    const slideTitle = (i) => {
+      const el = slides[i];
+      if (!el) return '';
+      return el.getAttribute('aria-label') || '';
+    };
+
+    function presenterShell() {
+      return `<!doctype html><html lang="hu"><head><meta charset="utf-8"><title>Előadói nézet · A kiszervezés ereje</title>
+<style>
+  body { margin: 0; padding: 28px 36px; background: #1d1b22; color: #f0f0e6; font-family: Sora, system-ui, sans-serif; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding-bottom: 16px; border-bottom: 1px solid #3a3743; }
+  #pos { color: #8af7c8; font-size: 20px; font-weight: 700; }
+  #title { flex: 1; font-size: 26px; font-weight: 750; }
+  #timer { font-size: 34px; font-weight: 750; font-variant-numeric: tabular-nums; cursor: pointer; }
+  #steps { margin-top: 14px; color: #f8d93c; font-size: 18px; font-weight: 650; min-height: 22px; }
+  #notes { margin-top: 12px; font-size: 22px; line-height: 1.55; max-width: 60em; }
+  #notes p { margin: 0 0 14px; }
+  #notes li { margin-bottom: 6px; }
+  #notes strong { color: #fff; }
+  footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid #3a3743; color: #aaa6b2; font-size: 18px; }
+  footer b { color: #f0f0e6; }
+  .hint { margin-top: 8px; font-size: 14px; color: #77727f; }
+</style></head><body>
+<header><span id="pos"></span><span id="title"></span><span id="timer" title="Kattintásra nullázódik">00:00</span></header>
+<div id="steps"></div>
+<div id="notes"></div>
+<footer>Következő: <b id="next"></b><div class="hint">← → vagy space ebben az ablakban is lépteti a diákat · kattints az órára a nullázáshoz</div></footer>
+</body></html>`;
+    }
+
+    function openPresenter() {
+      if (presenter && !presenter.closed) { presenter.focus(); return; }
+      presenter = window.open('', 'deck-presenter', 'width=1000,height=720');
+      if (!presenter) return;
+      presenter.document.open();
+      presenter.document.write(presenterShell());
+      presenter.document.close();
+      if (!startedAt) startedAt = Date.now();
+      presenter.document.getElementById('timer').addEventListener('click', () => { startedAt = Date.now(); tick(); });
+      presenter.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowLeft' || event.key === 'PageUp') prev();
+        if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') { event.preventDefault(); next(); }
+      });
+      updatePresenter();
+    }
+
+    function tick() {
+      if (!presenter || presenter.closed || !startedAt) return;
+      const s = Math.floor((Date.now() - startedAt) / 1000);
+      presenter.document.getElementById('timer').textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    }
+    setInterval(tick, 1000);
+
+    function updatePresenter() {
+      if (!presenter || presenter.closed) return;
+      const d = presenter.document;
+      const notes = (window.DECK_NOTES || [])[current] || { title: slideTitle(current), html: '<p>Nincs jegyzet ehhez a diához.</p>' };
+      const left = stepCount(current) - revealed;
+      d.getElementById('pos').textContent = `${current + 1} / ${slides.length}`;
+      d.getElementById('title').textContent = notes.title || slideTitle(current);
+      d.getElementById('steps').textContent = left > 0 ? `${left} további kattintás ezen a dián` : '';
+      d.getElementById('notes').innerHTML = notes.html;
+      const nextNotes = (window.DECK_NOTES || [])[current + 1];
+      d.getElementById('next').textContent = current + 1 < slides.length ? (nextNotes?.title || slideTitle(current + 1)) : 'a diasor vége';
+      tick();
+    }
+
+    const fsButton = document.getElementById('fullscreen');
+    function toggleFullscreen() {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen?.();
+    }
+    if (document.documentElement.requestFullscreen) fsButton.addEventListener('click', toggleFullscreen);
+    else fsButton.hidden = true;
+    document.addEventListener('fullscreenchange', resizeDeck);
+
+    let touchX = null;
+    const stageEl = document.querySelector('.stage');
+    stageEl.addEventListener('touchstart', (event) => { touchX = event.changedTouches[0].clientX; }, { passive: true });
+    stageEl.addEventListener('touchend', (event) => {
+      if (touchX === null) return;
+      const x = event.changedTouches[0].clientX;
+      const dx = x - touchX;
+      touchX = null;
+      if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); return; }
+      const box = stageEl.getBoundingClientRect();
+      if (x - box.left < box.width / 3) prev(); else next();
+    });
+
+    const notesBtn = document.getElementById('notes-btn');
+    if (window.DECK_NOTES) notesBtn.addEventListener('click', openPresenter); else notesBtn.hidden = true;
+    document.getElementById('prev').addEventListener('click', prev);
+    document.getElementById('next').addEventListener('click', next);
+    addEventListener('resize', resizeDeck);
+    addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') prev();
+      if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') next();
+      if (event.key === 'f' || event.key === 'F') toggleFullscreen();
+      if (event.key === 'n' || event.key === 'N') openPresenter();
+      if (event.key === 'Home') show(0);
+      if (event.key === 'End') show(slides.filter((s) => !s.classList.contains('backup')).length - 1, true);
+    });
+    resizeDeck();
+    show(current);
+  </script>
+</body>
+</html>
